@@ -45,15 +45,14 @@ static NSString* kUserAgent = @"OdnoklassnikiIOs";
 
 	NSMutableArray* pairs = [NSMutableArray array];
 	for (NSString* key in [params keyEnumerator]) {
-		NSString* escaped_value = (NSString *)CFURLCreateStringByAddingPercentEscapes(
+		NSString* escaped_value = (__bridge_transfer NSString *)CFURLCreateStringByAddingPercentEscapes(
 				NULL, /* allocator */
-				(CFStringRef)[params objectForKey:key],
+				(__bridge CFStringRef)[params objectForKey:key],
 				NULL, /* charactersToLeaveUnescaped */
 				(CFStringRef)@"!*'();:@&=+$,/?%#[]",
 				kCFStringEncodingUTF8);
 
 		[pairs addObject:[NSString stringWithFormat:@"%@=%@", key, escaped_value]];
-		[escaped_value release];
 	}
 	NSString* query = [pairs componentsJoinedByString:@"&"];
 
@@ -81,7 +80,7 @@ static NSString* kUserAgent = @"OdnoklassnikiIOs";
 						httpMethod:(NSString *) httpMethod
 						  delegate:(id<OKRequestDelegate>)delegate
 						 apiMethod:(NSString *)apiMethod{
-	OKRequest *request = [[[OKRequest alloc] init] autorelease];
+	OKRequest *request = [[OKRequest alloc] init];
 	request.delegate = delegate;
 	request.params = params;
 
@@ -107,7 +106,7 @@ static NSString* kUserAgent = @"OdnoklassnikiIOs";
 	request.HTTPMethod = _httpMethod ? _httpMethod : @"GET";
 	[request setValue:kUserAgent forHTTPHeaderField:@"User-Agent"];
 	NSLog(@"request url = %@", url);
-	self.connection = [[[NSURLConnection alloc] initWithRequest:request delegate:self] autorelease];
+	self.connection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
 }
 
 - (void)handleResponse:(NSMutableData *)data {
@@ -119,7 +118,6 @@ static NSString* kUserAgent = @"OdnoklassnikiIOs";
 	}else{
 		SBJsonParser *jsonParser = [[SBJsonParser alloc] init];
 		result = [jsonParser objectWithData:data];
-		[jsonParser release];
 	}
 	NSInteger error_code = [self checkResponseForErrorCodes:result];
 
@@ -161,22 +159,12 @@ static NSString* kUserAgent = @"OdnoklassnikiIOs";
 	return 0;
 }
 
-- (void)dealloc {
-	[_url release];
-	[_httpMethod release];
-	[_params release];
-	[_error release];
-	[_connection release];
-	[_responseText release];
-	[super dealloc];
-}
-
 /**
 * NSURLConnection Delegate
 */
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-	self.responseText = [[[NSMutableData alloc] init] autorelease];
+	self.responseText = [[NSMutableData alloc] init];
 	[_responseText appendData:data];
 }
 

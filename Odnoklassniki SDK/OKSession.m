@@ -41,22 +41,16 @@ static OKSession *_activeSession = nil;
 	if (!_activeSession) {
 		OKSession *session = [[OKSession alloc] init];
 		[OKSession setActiveSession:session];
-		[session release];
 	}
-	return [[_activeSession retain] autorelease];
+	return _activeSession;
 }
 
 + (OKSession *)setActiveSession:(OKSession *)session {
 	if (!_activeSession){
-		_activeSession = [session retain];
+		_activeSession = session;
 	}else if (session != _activeSession) {
-		OKSession *toRelease = _activeSession;
-		[toRelease close];
-		_activeSession = [session retain];
-
-		if (toRelease) {
-			[toRelease release];
-		}
+		[_activeSession close];
+		_activeSession = session;
 	}
 
 	return session;
@@ -64,7 +58,7 @@ static OKSession *_activeSession = nil;
 
 + (BOOL)openActiveSessionWithPermissions:(NSArray *)permissions appId:(NSString *)appID appSecret:(NSString*)secret{
 	BOOL result = NO;
-	OKSession *session = [[[OKSession alloc] initWithAppID:appID permissions:permissions appSecret:secret] autorelease];
+	OKSession *session = [[OKSession alloc] initWithAppID:appID permissions:permissions appSecret:secret];
 	if (session.accessToken != nil) {
 		[self setActiveSession:session];
 		result = YES;
@@ -81,7 +75,7 @@ static OKSession *_activeSession = nil;
     [newParams setValue:self.appId forKey:@"client_id"];
     [newParams setValue:self.appSecret forKey:@"client_secret"];
     
-    self.tokenRequest = [[[OKRequest alloc] init] autorelease];
+    self.tokenRequest = [[OKRequest alloc] init];
     _tokenRequest.url = [OKRequest serializeURL:kAccessTokenURL params:newParams httpMethod:@"POST"];
     _tokenRequest.delegate = self;
     _tokenRequest.params = newParams;
@@ -199,7 +193,7 @@ static OKSession *_activeSession = nil;
 	[newParams setValue:self.appId forKey:@"client_id"];
 	[newParams setValue:self.appSecret forKey:@"client_secret"];
 
-	self.refreshTokenRequest = [[[OKRequest alloc] init] autorelease];
+	self.refreshTokenRequest = [[OKRequest alloc] init];
 	_refreshTokenRequest.url = [OKRequest serializeURL:kAccessTokenURL params:newParams httpMethod:@"POST"];
 	_refreshTokenRequest.delegate = self;
 	_refreshTokenRequest.params = newParams;
@@ -261,20 +255,6 @@ static OKSession *_activeSession = nil;
 	} else if(request == self.refreshTokenRequest){
 		[self didNotExtendToken:error];
 	}
-}
-
-- (void)dealloc {
-	[_appId release];
-	[_permissions release];
-	_tokenRequest.delegate = nil;
-	_refreshTokenRequest.delegate = nil;
-	[_accessToken release];
-	[_refreshToken release];
-	[_appSecret release];
-	[_appKey release];
-	[_tokenRequest release];
-	[_refreshTokenRequest release];
-	[super dealloc];
 }
 
 

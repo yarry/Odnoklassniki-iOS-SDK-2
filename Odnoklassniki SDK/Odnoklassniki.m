@@ -42,7 +42,7 @@
 */
 - (void)authorize:(NSArray *)permissions {
 	[self.session close];
-	self.session = [[[OKSession alloc] initWithAppID:self.appId permissions:permissions appSecret:self.appSecret] autorelease];
+	self.session = [[OKSession alloc] initWithAppID:self.appId permissions:permissions appSecret:self.appSecret];
 	self.session.delegate = self.delegate;
 	self.session.appKey = self.appKey;
 	[OKSession setActiveSession:self.session];
@@ -100,11 +100,6 @@
 	[self.session close];
 	[OKSession setActiveSession:nil];
 	self.session = nil;
-	[_appId release];
-	[_session release];
-	[_appSecret release];
-	[_appKey release];
-	[super dealloc];
 }
 
 @end

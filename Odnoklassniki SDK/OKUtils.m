@@ -65,13 +65,12 @@ NSString* md5(NSString* str) {
 }
 
 + (NSString*)stringByURLEncodingString:(NSString*)unescapedString {
-	NSString* result = (NSString *)CFURLCreateStringByAddingPercentEscapes(
+	NSString* result = (__bridge_transfer NSString *)CFURLCreateStringByAddingPercentEscapes(
 			kCFAllocatorDefault,
-			(CFStringRef)unescapedString,
+			(__bridge CFStringRef)unescapedString,
 			NULL, // characters to leave unescaped
-			(CFStringRef)@":!*();@/&?#[]+$,='%’\"",
+			(__bridge CFStringRef)@":!*();@/&?#[]+$,='%’\"",
 			kCFStringEncodingUTF8);
-	[result autorelease];
 	return result;
 }
 

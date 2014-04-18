@@ -13,7 +13,6 @@ typedef enum{
 @protocol OKRequestDelegate;
 
 @interface OKRequest : NSObject{
-	id<OKRequestDelegate>	_delegate;
 	NSString *				_url;
 	NSString *				_httpMethod;
 	NSMutableDictionary *	_params;
@@ -24,7 +23,7 @@ typedef enum{
 	NSMutableData*        	_responseText;
 }
 
-@property(nonatomic, assign) id<OKRequestDelegate> delegate;
+@property(nonatomic, weak) id<OKRequestDelegate> delegate;
 @property(nonatomic, copy) NSString *url;
 @property(nonatomic, copy) NSString *httpMethod;
 
