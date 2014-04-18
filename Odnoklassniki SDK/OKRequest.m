@@ -7,7 +7,6 @@
 #import "OKRequest.h"
 #import "OKUtils.h"
 #import "OKSession.h"
-#import "SBJson.h"
 
 static const NSTimeInterval kRequestTimeoutInterval = 180.0;
 static NSString* kUserAgent = @"OdnoklassnikiIOs";
@@ -111,14 +110,14 @@ static NSString* kUserAgent = @"OdnoklassnikiIOs";
 
 - (void)handleResponse:(NSMutableData *)data {
 	id result;
-	Class jsonSerializationClass = NSClassFromString(@"NSJSONSerialization");
-	if (jsonSerializationClass) {
-		NSError *jsonParsingError = nil;
-		result = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonParsingError];
-	}else{
-		SBJsonParser *jsonParser = [[SBJsonParser alloc] init];
-		result = [jsonParser objectWithData:data];
-	}
+	NSError *jsonParsingError = nil;
+	result = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&jsonParsingError];
+
+    if(jsonParsingError) {
+        [self failWithError:jsonParsingError];
+        return;
+    }
+
 	NSInteger error_code = [self checkResponseForErrorCodes:result];
 
 	if(error_code == PARAM_SESSION_EXPIRED){
